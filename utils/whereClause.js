@@ -8,15 +8,15 @@ class WhereClause {
   }
   search() {
     //checking if bigQuery contains search
-    const searchword = this.bigQ.search
+    const searchword = this.bigQ.search //(searchword={name}) aisa
       ? {
           name: {
-            $regex: this.bigQ.search,
+            $regex: this.bigQ.search, //to perform nearby search with no case sensitivity constraints
             $options: "i", //i is for case insensitivity and g is for global
           },
         }
       : {};
-    this.base = this.base.find({ ...searchword });
+    this.base = this.base.find({ ...searchword }); //This is a way to add additional properties to an object without modifying the original object.
     return this;
   }
   pager(resultsPerPage) {
@@ -29,18 +29,21 @@ class WhereClause {
     return this;
   }
   filter() {
-    const copyQ = { ...this.bigQ }; //because copyQ is being converted to string nad being manipulated further and we dont want to change bigQ to string
+    const copyQ = { ...this.bigQ }; //because copyQ is being converted to string and being manipulated further and we dont want to change bigQ to string
     delete copyQ["search"];
     delete copyQ["limit"];
     delete copyQ["page"];
 
-    //converting bigQ to string=>copyQ
+    //converting copyQ to string
     let stringOfcopyQ = JSON.stringify(copyQ); //json to string
-    stringOfcopyQ.replace(/\b(lte | gte | lt | gt)\b/g, (m) => `$${m}`);
+    stringOfcopyQ = stringOfcopyQ.replace(
+      /\b(lte | gte | lt | gt)\b/g,
+      (m) => `$${m}`
+    );
     const jsonOfcopyQ = JSON.parse(stringOfcopyQ); //changing string to JSON
     this.base = this.base.find(jsonOfcopyQ);
     return this;
   }
 }
 
-module.exports = whereClause;
+module.exports = WhereClause;
